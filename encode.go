@@ -1,4 +1,4 @@
-package src
+package jwt
 
 import (
 	"crypto/hmac"
@@ -9,14 +9,13 @@ import (
 	"log"
 )
 
-func (t *Token) encode() ([]byte, error){
-	//THIS FUNCTION ONLY ENCODES JWT's USING HMAC-SHA256 AS OF NOW
+func (t *Token) encodeHS256() ([]byte, error){
 	headerJson, err := json.Marshal(t.Header)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	payloadJson, err := json.Marshal(t.Payload.Claims)
+	payloadJson, err := json.Marshal(t.Claims)
 	if err != nil {
 		log.Fatal(err)
 	}
