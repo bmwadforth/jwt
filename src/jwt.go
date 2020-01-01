@@ -1,4 +1,4 @@
-package jwt
+package src
 
 //This library has been designed and implemented with meticulous reference to rfc7519
 /*
@@ -48,10 +48,11 @@ Support for Nested JWTs is OPTIONAL.*/
 //JOSE Header
 type Header struct {
 	Algorithm string `json:"alg"`
+	Type      string `json:"typ"`
 	//Whatever other mandatory fields are go here
 }
 
-//Although an interface, the value of each map item needs to conform to JSON - string, array, number, etc.
+//Although an interface, the value of each map item needs to conform to JSON grammar - string, array, number, etc.
 type Payload struct {
 	Claims map[string]interface{}
 }
@@ -60,16 +61,22 @@ type Payload struct {
 type Token struct {
 	Header
 	Payload
-	Output []byte
+	key []byte
+	output []byte
 }
 
-func Build(claims map[string]interface{}) ([]byte, error) {
-	//Determine 'alg' value based on what the
+func Build(alg string, claims map[string]interface{}, key []byte) ([]byte, error) {
+	//Check if alg supplied is in list of 'supported algorithms'
+
 	token := Token{
-		Header: Header{},
+		Header: Header{
+			Algorithm: alg,
+			Type: "JWT",
+		},
 		Payload: Payload{
 			Claims: claims,
 		},
+		key: key,
 	}
 
 	//Based on the arguments to the func, return a JWS or a JWE
@@ -77,6 +84,6 @@ func Build(claims map[string]interface{}) ([]byte, error) {
 }
 
 func Parse(tokenString string) {
-	token := Token{Output:[]byte(tokenString)}
-	token.decode()
+	//token := Token{output: []byte(tokenString)}
+	//token.decode()
 }
