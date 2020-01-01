@@ -18,7 +18,7 @@ func (t *Token) decodeHS256() (*Token, error){
 	payloadJson, _ := base64.RawURLEncoding.DecodeString(tokenComponents[1])
 
 	_ = json.Unmarshal(headerJson, &t.Header)
-	_ = json.Unmarshal(payloadJson, &t.Payload.Claims)
+	_ = json.Unmarshal(payloadJson, &t.Payload.ClaimSet)
 
 	return t, nil
 }

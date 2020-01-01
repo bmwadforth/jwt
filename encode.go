@@ -15,7 +15,7 @@ func (t *Token) encodeHS256() ([]byte, error){
 		log.Fatal(err)
 	}
 
-	payloadJson, err := json.Marshal(t.Claims)
+	payloadJson, err := json.Marshal(t.ClaimSet)
 	if err != nil {
 		log.Fatal(err)
 	}
