@@ -26,7 +26,7 @@ type Token struct {
 	Header
 	Payload
 	key []byte
-	output []byte
+	raw []byte
 }
 
 func Build(alg string, claims map[string]interface{}, key []byte) ([]byte, error) {
@@ -50,7 +50,7 @@ func Build(alg string, claims map[string]interface{}, key []byte) ([]byte, error
 }
 
 func Parse(tokenString string) (*Token, error) {
-	token := Token{output: []byte(tokenString)}
+	token := Token{raw: []byte(tokenString)}
 	t, err := token.decodeHS256()
 	if err != nil {
 		log.Fatal(err)
