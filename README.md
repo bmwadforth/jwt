@@ -74,15 +74,25 @@ import (
     . "github.com/bmwadforth/jwt"
 )
 
+//DO NOT call token.Encode() otherwise SignFunc will be 'looked up' based on the algorithm you passed in
+//If you are overriding the signing function, you must manually generate the base64 of the 
+//header and payload, and then sign it using your custom sign function 
 func main(){
     token, _ := New(HS256, NewClaimSet(), []byte("Key")) 
     signer, _ := NewSigner(token, func(b []byte, key []byte) ([]byte, error) {
         //key is automatically populated with the key argument when creating the token
         //b is the bytes to sign
         //Implement your own HS256 signing logic here
-        return nil, nil
+        return b, nil
     })
-    signedBytes, _ := signer.Sign([]byte(""))
+    
+    headerB64, _ := token.Header.ToBase64()
+    payloadB64, _ := token.Payload.ToBase64()
+    
+    bytesToSign := fmt.Sprintf("%s.%s", headerB64, payloadB64)
+    
+    //Custom SignFunc defined above will now be called
+    signedBytes, _ := signer.Sign([]byte(bytesToSign))
     
     fmt.Println(string(signedBytes))
 }
