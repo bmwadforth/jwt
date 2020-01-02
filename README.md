@@ -1,8 +1,12 @@
 # Json Web Token (RFC7519) Library
 
+### Mission
 This library has two goals.
 * Make generating and validating _JWTs_ as intuitive and easy as possible, with the ability to add complexity if the developer chooses
 * Follow RFC7519 and implement the recommended cryptographic algorithms for both JWS and JWE
+
+### Disclaimer
+This library is extremely **new**. Integrate it with your applications at your own risk. Notably, the library could rapidly change in design - causing breaking changes. 
 
 ### Quickstart
 If all you want to do is generate and validate a JWT, use these examples.
