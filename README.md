@@ -1,13 +1,12 @@
 # Json Web Token (RFC7519) Library
 
 This library has two goals.
-* Make generating and validating "JWTs" as intuitive and easy as possible, with the ability to add complexity if the developer chooses
+* Make generating and validating _JWTs_ as intuitive and easy as possible, with the ability to add complexity if the developer chooses
 * Follow RFC7519 and implement the recommended cryptographic algorithms for both JWS and JWE
 
 ### Example
-Chances are you are a developer that just wants to generate and validate a token
-
-Generating a HS256 token - (if you just want to generate a JWT, this is 99% of the time what you want to do)
+Chances are you are a developer that just wants to generate and validate a token.
+Generating a HS256 token (which is commonly used to authenticate clients).
 
 ```go
 package main
