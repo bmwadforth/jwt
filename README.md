@@ -93,8 +93,7 @@ This library currently supports JWS only - implementing HS256 and insecure JWTs.
    |              | MGF1 with SHA-384             |                    | ❌|
    | PS512        | RSASSA-PSS using SHA-512 and  | Optional           | ❌|
    |              | MGF1 with SHA-512             |                    | ❌|
-   | none         | No digital signature or MAC   | Optional           | ✅|
-   |              | performed                     |
+   | none         | No digital signature or MAC performed    | Optional           | ✅|
    
    
 #### JWE
