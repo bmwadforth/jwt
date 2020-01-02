@@ -57,7 +57,11 @@ func (t *Token) Encode() ([]byte, error){
 	}
 
 	headerPayloadCompact := fmt.Sprintf("%s.%s", headerB64, payloadB64)
-	algorithm := t.Header.Properties["alg"].(AlgorithmType)
+	algorithm, ok := t.Header.Properties["alg"].(AlgorithmType); if !ok {
+		algorithmStr, ok := t.Header.Properties["alg"].(string); if ok {
+			algorithm = AlgorithmType(algorithmStr)
+		}
+	}
 
 	tokenType, err := DetermineTokenType(algorithm)
 	if err != nil {

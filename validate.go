@@ -1,5 +1,10 @@
 package jwt
 
+import (
+	"bytes"
+	"errors"
+)
+
 /*
    When validating a JWT, the following steps are performed.  The order
    of the steps is not significant in cases where there are no
@@ -58,7 +63,18 @@ package jwt
    validated, unless the algorithms used in the JWT are acceptable to
    the application, it SHOULD reject the JWT.
  */
-func (t *Token) Validate(key []byte) (bool, error){
 
-	return false, nil
+func (t *Token) Validate(key []byte) (bool, error){
+	t.key = key
+
+	signedByes, err := t.Encode()
+	if err != nil {
+		return false, err
+	}
+
+	if bytes.Equal(signedByes, t.raw) {
+		return true, nil
+	} else {
+		return false, errors.New("validation failed")
+	}
 }

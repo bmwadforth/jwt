@@ -12,16 +12,6 @@ func TestEncodeJWT(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = claims.Add(string(Subject), "everyone")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = claims.Add("usr", "brannon")
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	token, _ := New(HS256, claims, []byte("THIS_IS_A_KEY"))
 
 	tokenBytes, err := token.Encode()
@@ -33,13 +23,32 @@ func TestEncodeJWT(t *testing.T) {
 }
 
 func TestDecodeJWT(t *testing.T) {
-	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJldmVyeW9uZSIsInN1YiI6ImV2ZXJ5b25lIiwidXNyIjoiYnJhbm5vbiJ9"
+	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJldmVyeW9uZSJ9.NFs_ovvcxQG1PszLUNXmierwLVEK3-mHq5SGKr3DOXw"
 
 	token, err := Parse(tokenString)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fmt.Printf("%+v\n", token)
+	if token.Claims["aud"] != "everyone" {
+		t.Fatal("unable to decode jwt string correctly")
+	}
 }
+
+func TestValidateJWT(t *testing.T) {
+	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJldmVyeW9uZSJ9.NFs_ovvcxQG1PszLUNXmierwLVEK3-mHq5SGKr3DOXw"
+
+	token, err := Parse(tokenString)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	key := []byte("THIS_IS_A_KEY")
+	isValid, _ := token.Validate(key)
+
+	if !isValid {
+		t.Fatal("token is not valid")
+	}
+}
+
 

@@ -25,20 +25,14 @@ func generateJwt(key []byte) (string, error) {
         //Handle error
         log.Fatal(err)
     }
-   
-    /*
-      You don't need to check for an error 
-      as long as you don't add a claim 
-      that is valid JSON grammar
-    */
+ 
     claims.Add(string(Subject), "your_subject")
     claims.Add(string(IssuedAt), time.Now())
     claims.Add("my_claim", "some_value")
     
-    //Chances are you want to use HS256 if you just want a 'jwt'
+    //Use HS256 if you're just looking to generate a JWT to authenticate a client
     token, err := New(HS256, claims, key)
     if err != nil {
-        //Unable to create JWT for some reason, handle error here
         log.Fatal(err)
     }
 
@@ -47,13 +41,13 @@ func generateJwt(key []byte) (string, error) {
     //https://jwt.io/#debugger-io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ5b3VyX2F1ZGllbmNlIiwiaWF0IjoiMjAyMC0wMS0wMlQxOToyNDoxOS4wMTYzOTUrMTE6MDAiLCJteV9jbGFpbSI6InNvbWVfdmFsdWUiLCJzdWIiOiJ5b3VyX3N1YmplY3QifQ.vjNqqbMxyh86m9vB7XiCqVRq8Xmxi9858WwrIFoagzo
 }
 
-func verifyToken(tokenString string, key []byte) (bool, error) {
+func validateToken(tokenString string, key []byte) (bool, error) {
     _, err := Parse(tokenString)
 	if err != nil {
 		log.Fatal(err)
 	}
     
-    //TODO: token.Verify()
+    //TODO: token.Validate()
     return true, nil
 }
 
@@ -61,7 +55,7 @@ func verifyToken(tokenString string, key []byte) (bool, error) {
 func main(){
     key := []byte("HMAC ALLOWS AN ARBITRARY KEY SIZE, BUT 64 BYTES IS RECOMMENDED")
     tokenString, _ := generateJwt(key)
-    tokenValid, _ := verifyToken(tokenString, key)
+    tokenValid, _ := validateToken(tokenString, key)
     
     if tokenValid {
         //Do something
