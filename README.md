@@ -93,7 +93,7 @@ This library currently supports JWS only - implementing HS256 and insecure JWTs.
 #### JWE
 
 **_JWE has not been implemented in this library yet_**
-
+<!---
 | "alg" Param        | Key Management Algorithm  | Header Params|  Implementation Requirement |
 | ------------- |:-------------:| -----:| -----:|
 | RSA1_5             | RSAES-PKCS1-v1_5   | (none) | Recommended-   |
@@ -152,3 +152,4 @@ This library currently supports JWS only - implementing HS256 and insecure JWTs.
    | PBES2-HS512+A256KW | PBES2 with HMAC    | "p2s", | Optional       |
    |                    | SHA-512 and        | "p2c"  |                |
    |                    | "A256KW" wrapping  |        |                |
+   ---!>
