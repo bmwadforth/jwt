@@ -66,7 +66,31 @@ func main(){
     }
 }
 ```
+### Custom Signing Method
 
+If you would prefer to define your own JWS signing method, you can define your own SignFunc
+
+```go
+package main
+
+import (
+    "fmt"
+    . "github.com/bmwadforth/jwt"
+)
+
+func main(){
+    token, _ := New(HS256, NewClaimSet(), []byte("Key")) 
+    signer, _ := NewSigner(token, func(b []byte, key []byte) ([]byte, error) {
+        //key is automatically populated with the key argument when creating the token
+        //b is the bytes to sign
+        //Implement your own HS256 signing logic here
+        return nil, nil
+    })
+    signedBytes, _ := signer.Sign([]byte(""))
+    
+    fmt.Println(string(signedBytes))
+}
+```
 
 ### Supported Algorithms
 This library currently supports JWS only - implementing HS256 and insecure JWTs.

@@ -37,3 +37,14 @@ func (s *Signer) Sign(bytesToSign []byte) ([]byte, error) {
 
 	return signedBytes, nil
 }
+
+func NewSigner(t *Token, signFunc SignFunc) (*Signer, error){
+	if t == nil {
+		return nil, errors.New("token structure must be supplied")
+	}
+
+	return &Signer{
+		Token:    t,
+		SignFunc: signFunc,
+	}, nil
+}

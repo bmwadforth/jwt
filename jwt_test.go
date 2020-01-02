@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"bytes"
 	"fmt"
 	"testing"
 )
@@ -51,4 +52,29 @@ func TestValidateJWT(t *testing.T) {
 	}
 }
 
+func TestCustomJWSSign(t *testing.T) {
+	token, err := New(HS256, NewClaimSet(), []byte("KEY"))
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	signer, err := NewSigner(token, func(b []byte, key []byte) ([]byte, error) {
+		buff := bytes.Buffer{}
+		buffer := bytes.NewBuffer(buff.Bytes())
+
+		buffer.Write(b)
+		buffer.Write(key)
+
+		return buffer.Bytes(), nil
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	signedBytes, _ := signer.Sign([]byte("BYTES"))
+
+	if !bytes.Equal(signedBytes, []byte{66, 89, 84, 69, 83, 75, 69, 89}) {
+		t.Fatal("signer function returned invalid bytes")
+	}
+}

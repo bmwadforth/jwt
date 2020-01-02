@@ -1,28 +1,5 @@
 package jwt
 
-type EncoderDecoder interface {
-	Encoder
-	Decoder
-}
-
-type Encoder interface {
-	Encode
-}
-
-type Encode interface {
-	ToJson() ([]byte, error)
-	ToBase64() ([]byte, error)
-}
-
-type Decoder interface {
-	Decode
-}
-
-type Decode interface {
-	FromJson() (*Encoder, error)
-	FromBase64() (*Encoder, error)
-}
-
 type SignFunc func(bytes []byte, key []byte) ([]byte, error)
 
 type RegisteredClaim string
@@ -47,8 +24,6 @@ const (
 type AlgorithmType string
 
 const (
-	Custom AlgorithmType = "CUSTOM"
-
 	HS256 AlgorithmType = "HS256"
 	None  AlgorithmType = "none"
 
