@@ -1,7 +1,7 @@
 # Json Web Token (RFC7519) Library
 
 This library has two goals.
-* Make generating and validating "JWTs" as intuitive and easy as possible
+* Make generating and validating "JWTs" as intuitive and easy as possible, with the ability to add complexity if the developer chooses
 * Follow RFC7519 and implement the recommended cryptographic algorithms for both JWS and JWE
 
 ### Example
@@ -19,7 +19,7 @@ import (
     "time"
 )
 
-func main(){
+func generateJwt(key []byte) (string, error) {
     claims := NewClaimSet()
     err := claims.Add(string(Audience), "your_audience")
     if err != nil {
@@ -37,31 +37,35 @@ func main(){
     claims.Add("my_claim", "some_value")
     
     //Chances are you want to use HS256 if you just want a 'jwt'
-    token, err := New(HS256, claims, []byte("HMAC-SHA256 ALLOWS AN ARBITRARY KEY SIZE"))
+    token, err := New(HS256, claims, key)
     if err != nil {
         //Unable to create JWT for some reason, handle error here
         log.Fatal(err)
     }
 
     tokenBytes, err := token.Encode()
-    fmt.Println(string(tokenBytes)) //See jwt.io link
-    
+    return string(tokenBytes), nil
     //https://jwt.io/#debugger-io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ5b3VyX2F1ZGllbmNlIiwiaWF0IjoiMjAyMC0wMS0wMlQxOToyNDoxOS4wMTYzOTUrMTE6MDAiLCJteV9jbGFpbSI6InNvbWVfdmFsdWUiLCJzdWIiOiJ5b3VyX3N1YmplY3QifQ.vjNqqbMxyh86m9vB7XiCqVRq8Xmxi9858WwrIFoagzo
 }
+
+func verifyToken(tokenString string, key []byte) (bool, error) {
+    _, err := Parse(tokenString)
+	if err != nil {
+		log.Fatal(err)
+	}
+    
+    //TODO: token.Verify()
+    return true, nil
+}
+
+
+func main(){
+    key := []byte("HMAC ALLOWS AN ARBITRARY KEY SIZE, BUT 64 BYTES IS RECOMMENDED")
+    tokenString, _ := generateJwt(key)
+    tokenValid, _ := verifyToken(tokenString, key)
+    
+    if tokenValid {
+        //Do something
+    }
+}
 ```
-
-
-
-
-
-TODO
-* Document how the library works
-* Make it possible for users to override the sign func so that they can implement/change how the signing/encrypting of the token works
-
-
-//https://medium.facilelogin.com/jwt-jws-and-jwe-for-not-so-dummies-b63310d201a3
-
-TODO Introduce more algorithm support
-	 Implement validation - specifically JSON grammar validation, and algorithm validation
-	 Introduce proper error handling - errors shouldn't be log.Fatal'ing
-	 Improve Encode/decode process
