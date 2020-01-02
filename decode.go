@@ -6,7 +6,7 @@ import (
 )
 
 func (t *Token) Decode()  error {
-	if t.raw == nil {
+	if t.raw == nil || string(t.raw) == "" {
 		return errors.New("raw token string must be provided to decode")
 	}
 
