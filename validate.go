@@ -67,6 +67,8 @@ import (
 func (t *Token) Validate(key []byte) (bool, error){
 	t.key = key
 
+	//TODO: This should be validating using a ValidateFunc, because validation will change based on the algorithm
+
 	signedByes, err := t.Encode()
 	if err != nil {
 		return false, err

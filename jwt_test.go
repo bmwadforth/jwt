@@ -78,3 +78,18 @@ func TestCustomJWSSign(t *testing.T) {
 		t.Fatal("signer function returned invalid bytes")
 	}
 }
+
+func TestRSA256Sign(t *testing.T) {
+	token, err := New(RS256, NewClaimSet(), []byte("7F5B65ED8286DD19938D669362FF8DDF"))
+	fmt.Println(len([]byte("7F5B65ED8286DD19938D669362FF8DDF")))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tokenBytes, err := token.Encode()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(tokenBytes))
+}

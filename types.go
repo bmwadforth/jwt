@@ -25,6 +25,8 @@ type AlgorithmType string
 
 const (
 	HS256 AlgorithmType = "HS256"
+
+	RS256 AlgorithmType = "RS256"
 	None  AlgorithmType = "none"
 
 	//TODO: JWE

@@ -2,7 +2,7 @@ package jwt
 
 import "errors"
 
-var jwsAlgorithms = []AlgorithmType{HS256, None}
+var jwsAlgorithms = []AlgorithmType{HS256, RS256, None}
 
 func DetermineTokenType(alg AlgorithmType) (TokenType, error) {
 	//TODO: Improve the efficiency of this function, it shouldn't really just loop over a slice and check if the currently
