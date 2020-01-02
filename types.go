@@ -49,15 +49,18 @@ const (
 type AlgorithmType string
 
 const (
+	Custom AlgorithmType = "CUSTOM"
+
+	//JWS
 	HS256 AlgorithmType = "HS256"
 	None  AlgorithmType = "none"
+
+	//TODO: JWE
 )
 
 //Data Structures
 type Header struct {
 	Properties map[string]interface{}
-	//Algorithm string `json:"alg"`
-	//Type      string `json:"typ"`
 }
 
 type ClaimSet struct {

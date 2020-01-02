@@ -85,6 +85,8 @@ func (t *Token) Encode() ([]byte, error){
 		return []byte(fmt.Sprintf("%s.%s.%s", headerB64, payloadB64, signatureB64)), nil
 	case JWE:
 		log.Fatal("JWE Not Implemented")
+	default:
+		//TODO: If you get here, CUSTOM has been chosen for the algorithm, which means the developer consuming this API will be implementing the SignFunc/EncryptFunc
 	}
 
 	return nil, errors.New("unable to encode - please check algorithm")

@@ -1,6 +1,5 @@
 package jwt
 
-//This library has been designed and implemented with loose reference to RFC7519
 /*
 FOR JWE
  +--------------------+--------------------+--------+----------------+

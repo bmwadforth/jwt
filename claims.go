@@ -10,12 +10,11 @@ func NewClaimSet() ClaimSet {
 }
 
 func (c *ClaimSet) Add(key string, value interface{}) error {
-	//Ensure value is of JSON grammar
+	//TODO: Ensure value is of JSON grammar
 	_, found := c.Claims[key]; if found {
 		return errors.New("duplicate claims are forbidden")
 	}
 
-	//Do JSON grammar checks on value, if all is good
 	c.Claims[key] = value
 
 	return nil
