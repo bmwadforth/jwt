@@ -1,6 +1,5 @@
 package jwt
 
-//Interfaces
 type EncoderDecoder interface {
 	Encoder
 	Decoder
@@ -24,7 +23,6 @@ type Decode interface {
 	FromBase64() (*Encoder, error)
 }
 
-//Type Definitions
 type SignFunc func(bytes []byte, key []byte) ([]byte, error)
 
 type RegisteredClaim string
@@ -51,14 +49,12 @@ type AlgorithmType string
 const (
 	Custom AlgorithmType = "CUSTOM"
 
-	//JWS
 	HS256 AlgorithmType = "HS256"
 	None  AlgorithmType = "none"
 
 	//TODO: JWE
 )
 
-//Data Structures
 type Header struct {
 	Properties map[string]interface{}
 }
