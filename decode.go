@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -12,7 +11,6 @@ func (t *Token) Decode()  error {
 	}
 
 	tokenComponents := strings.Split(string(t.raw), ".")
-	fmt.Println(tokenComponents)
 
 	header, _ := t.Header.FromBase64([]byte(tokenComponents[0]))
 	t.Header = *header

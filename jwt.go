@@ -96,7 +96,7 @@ FOR JWS
    +--------------+-------------------------------+--------------------+
  */
 
-func New(alg string, claims ClaimSet, key []byte) (*Token, error) {
+func New(alg AlgorithmType, claims ClaimSet, key []byte) (*Token, error) {
 	//TODO: Validate Algorithm here, should be one of supported JWE/JWS algs
 	//if invalid alg, return nil, errors.New("a supported algorithm must be provided")
 	token := Token{

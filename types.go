@@ -1,13 +1,6 @@
 package jwt
 
 //Interfaces
-/*
-//JWS & JWE structs should implement this
-type JWX interface {
-	Encoder
-	Decoder
-}*/
-
 type EncoderDecoder interface {
 	Encoder
 	Decoder
@@ -32,7 +25,10 @@ type Decode interface {
 }
 
 //Type Definitions
+type SignFunc func(bytes []byte, key []byte) ([]byte, error)
+
 type RegisteredClaim string
+
 const (
 	Issuer         RegisteredClaim = "iss"
 	Subject        RegisteredClaim = "sub"
@@ -41,6 +37,20 @@ const (
 	NotBefore      RegisteredClaim = "nbf"
 	IssuedAt       RegisteredClaim = "iat"
 	JwtID          RegisteredClaim = "jti"
+)
+
+type TokenType string
+
+const (
+	JWS TokenType = "jws"
+	JWE TokenType = "jwe"
+)
+
+type AlgorithmType string
+
+const (
+	HS256 AlgorithmType = "HS256"
+	None  AlgorithmType = "none"
 )
 
 //Data Structures
@@ -68,3 +78,9 @@ type Token struct {
 	key []byte
 	raw []byte
 }
+
+type Signer struct {
+	*Token
+	SignFunc
+}
+

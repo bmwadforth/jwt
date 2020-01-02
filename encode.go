@@ -1,6 +1,11 @@
 package jwt
 
-import "fmt"
+import (
+	"encoding/base64"
+	"errors"
+	"fmt"
+	"log"
+)
 
 /*
 7.1.  Creating a JWT
@@ -52,11 +57,31 @@ func (t *Token) Encode() ([]byte, error){
 	}
 
 	headerPayloadCompact := fmt.Sprintf("%s.%s", headerB64, payloadB64)
+	algorithm := t.Header.Properties["alg"].(AlgorithmType)
 
+	tokenType, err := DetermineTokenType(algorithm)
+	if err != nil {
+		return nil, err
+	}
 
-	//If JWS, sign
+	switch tokenType {
+	case JWS:
+		signer := Signer{
+			Token:    t,
+			SignFunc: getSignFunc(algorithm),
+		}
 
-	//If JWE, encrypt
+		signedBytes, err := signer.Sign([]byte(headerPayloadCompact))
+		if err != nil {
+			return nil, err
+		}
 
-	return []byte(headerPayloadCompact), nil
+		signatureB64 := base64.RawURLEncoding.EncodeToString(signedBytes)
+
+		return []byte(fmt.Sprintf("%s.%s.%s", headerB64, payloadB64, signatureB64)), nil
+	case JWE:
+		log.Fatal("JWE Not Implemented")
+	}
+
+	return nil, errors.New("unable to encode - please check algorithm")
 }
