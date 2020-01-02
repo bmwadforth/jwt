@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"bytes"
+	"crypto/rand"
 	"fmt"
 	"testing"
 )
@@ -26,17 +27,13 @@ func TestEncodeJWT(t *testing.T) {
 func TestDecodeJWT(t *testing.T) {
 	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJldmVyeW9uZSJ9.NFs_ovvcxQG1PszLUNXmierwLVEK3-mHq5SGKr3DOXw"
 
-	token, valid, err := Parse(tokenString)
+	token, err := Parse(tokenString, []byte("THIS_IS_A_KEY"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if token.Claims["aud"] != "everyone" {
 		t.Fatal("unable to decode jwt string correctly")
-	}
-
-	if !valid {
-		t.Fatal("token is invalid")
 	}
 }
 
@@ -68,8 +65,14 @@ func TestCustomJWSSign(t *testing.T) {
 }
 
 func TestRSA256Sign(t *testing.T) {
-	token, err := New(RS256, NewClaimSet(), []byte("7F5B65ED8286DD19938D669362FF8DDF"))
-	fmt.Println(len([]byte("7F5B65ED8286DD19938D669362FF8DDF")))
+	t.Skip()
+	key := make([]byte, 32)
+	_, _ = rand.Read(key)
+
+	fmt.Println(key)
+
+	token, err := New(RS256, NewClaimSet(), key)
+
 	if err != nil {
 		t.Fatal(err)
 	}

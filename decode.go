@@ -37,8 +37,7 @@ func (t *Token) Decode()  (bool, error) {
 			log.Fatal(err)
 		}
 
-		//TODO: determine bytes to validate
-		return validator.Validate(t.raw)
+		return validator.Validate()
 	case JWE:
 		log.Fatal("JWE Not Implemented")
 	default:

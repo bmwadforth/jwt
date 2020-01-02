@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"bytes"
 	"errors"
 	"log"
 )
@@ -72,7 +73,7 @@ func getValidateFunc(a AlgorithmType) ValidateFunc {
 	case RS256:
 		return validateRSA256
 	case None:
-		return func(_ []byte, _ []byte) (bool, error) {
+		return func(v *Validator) (bool, error) {
 			return true, nil
 		}
 	}
@@ -80,24 +81,31 @@ func getValidateFunc(a AlgorithmType) ValidateFunc {
 	return nil
 }
 
-func validateHMAC256(raw []byte, key []byte) (bool, error) {
-	log.Fatal("hmac256 validation not implemented")
+func validateHMAC256(v *Validator) (bool, error) {
+	encodedBytes, err := v.Encode()
+	if err != nil {
+		return false, err
+	}
+
+	if !bytes.Equal(encodedBytes, v.raw) {
+		return false, errors.New("failed to validated token - bytes are not equal")
+	}
 
 	return true, nil
 }
 
-func validateRSA256(raw []byte, key []byte) (bool, error) {
+func validateRSA256(v *Validator) (bool, error) {
 	log.Fatal("rsa256 validation not implemented")
 
 	return true, nil
 }
 
-func (v *Validator) Validate(bytesToValidate []byte) (bool, error) {
+func (v *Validator) Validate() (bool, error) {
 	if v.ValidateFunc == nil {
 		return false, errors.New("unable to verify data without a validating function defined")
 	}
 
-	valid, err := v.ValidateFunc(bytesToValidate, v.key)
+	valid, err := v.ValidateFunc(v)
 	if err != nil {
 		return false, err
 	}

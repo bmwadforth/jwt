@@ -46,23 +46,23 @@ func main(){
 package main
 
 import (
-    . "github.com/bmwadforth/jwt"
+    "fmt"
+. "github.com/bmwadforth/jwt"
     "log"
 )
 
 func main(){
     tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ5b3VyX2F1ZGllbmNlIiwiaWF0IjoiMjAyMC0wMS0wMlQyMTo1NTo1OS40MzE1ODErMTE6MDAiLCJteV9jbGFpbSI6InNvbWVfdmFsdWUiLCJzdWIiOiJ5b3VyX3N1YmplY3QifQ.PAR_a60R6VZakCmBZg8aMgt3eXDi-CMC4P4p08yJy-I"
     key := []byte("Key")
-    token, err := Parse(tokenString)
+    token, err := Parse(tokenString, key)
     if err != nil {
         log.Fatal(err)
     }
+
+    //No errors, token is valid
+    //The token string has been deserialized and validated
     
-    isValid, _ := token.Validate(key)
-    
-    if !isValid {
-        //Not Valid
-    }
+    fmt.Println(token.Claims)
 }
 ```
 

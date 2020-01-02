@@ -40,6 +40,7 @@ func signRSA256(d []byte, key []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	signature, err := rsa.SignPKCS1v15(rng, privateKey, crypto.SHA256, hashed[:])
 	if err != nil {
 		return nil, err

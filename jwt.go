@@ -22,17 +22,20 @@ func New(alg AlgorithmType, claims ClaimSet, key []byte) (*Token, error) {
 	return &token, nil
 }
 
-func Parse(tokenString string) (*Token, bool, error) {
+//Parsing is slightly different to creating tokens. Parsing will accept the token string and a key.
+//After parsing the token string and decoding it, it will validate the token using the key provided
+func Parse(tokenString string, key []byte) (*Token, error) {
 	token := Token{raw: []byte(tokenString)}
+	token.key = key
 
 	valid, err := token.Decode()
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
 	if !valid {
-		return nil, false, errors.New("token is invalid")
+		return nil, errors.New("token is invalid")
 	}
 
-	return &token, true, nil
+	return &token, nil
 }
