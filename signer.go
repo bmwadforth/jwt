@@ -10,6 +10,8 @@ func getSignFunc(a AlgorithmType) SignFunc {
 	switch a {
 	case HS256:
 		return signHMAC256
+	case ES256:
+		return signECDSA256
 	case None:
 		return func(_ []byte, _ []byte) ([]byte, error) {
 			return nil, nil
@@ -17,6 +19,10 @@ func getSignFunc(a AlgorithmType) SignFunc {
 	}
 
 	return nil
+}
+
+func signECDSA256(d []byte, key []byte) ([]byte, error) {
+	return nil, nil
 }
 
 func signHMAC256(d []byte, key []byte) ([]byte, error) {
