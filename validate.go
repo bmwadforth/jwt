@@ -1,9 +1,10 @@
 package jwt
 
 import (
-	"bytes"
 	"errors"
+	"log"
 )
+
 
 /*
    When validating a JWT, the following steps are performed.  The order
@@ -62,21 +63,55 @@ import (
    be used in a given context.  Even if a JWT can be successfully
    validated, unless the algorithms used in the JWT are acceptable to
    the application, it SHOULD reject the JWT.
- */
+*/
 
-func (t *Token) Validate(key []byte) (bool, error){
-	t.key = key
+func getValidateFunc(a AlgorithmType) ValidateFunc {
+	switch a {
+	case HS256:
+		return validateHMAC256
+	case RS256:
+		return validateRSA256
+	case None:
+		return func(_ []byte, _ []byte) (bool, error) {
+			return true, nil
+		}
+	}
 
-	//TODO: This should be validating using a ValidateFunc, because validation will change based on the algorithm
+	return nil
+}
 
-	signedByes, err := t.Encode()
+func validateHMAC256(raw []byte, key []byte) (bool, error) {
+	log.Fatal("hmac256 validation not implemented")
+
+	return true, nil
+}
+
+func validateRSA256(raw []byte, key []byte) (bool, error) {
+	log.Fatal("rsa256 validation not implemented")
+
+	return true, nil
+}
+
+func (v *Validator) Validate(bytesToValidate []byte) (bool, error) {
+	if v.ValidateFunc == nil {
+		return false, errors.New("unable to verify data without a validating function defined")
+	}
+
+	valid, err := v.ValidateFunc(bytesToValidate, v.key)
 	if err != nil {
 		return false, err
 	}
 
-	if bytes.Equal(signedByes, t.raw) {
-		return true, nil
-	} else {
-		return false, errors.New("validation failed")
+	return valid, nil
+}
+
+func NewValidator(t *Token, validatorFunc ValidateFunc) (*Validator, error){
+	if t == nil {
+		return nil, errors.New("token structure must be supplied")
 	}
+
+	return &Validator{
+		Token:    t,
+		ValidateFunc: validatorFunc,
+	}, nil
 }
