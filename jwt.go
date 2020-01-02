@@ -1,10 +1,6 @@
 package jwt
 
-import (
-	"errors"
-	"log"
-)
-
+//This library has been designed and implemented with loose reference to RFC7519
 /*
 FOR JWE
  +--------------------+--------------------+--------+----------------+
@@ -100,43 +96,33 @@ FOR JWS
    +--------------+-------------------------------+--------------------+
  */
 
-/*
-This library has been designed and implemented with loose reference to RFC7519
-TODO Introduce more algorithm support
-	 Implement validation - specifically JSON grammar validation, and algorithm validation
-	 Introduce proper error handling - errors shouldn't be log.Fatal'ing
-	 Improve encode/decode process
-*/
-
-func New(alg string, claims ClaimSet, key []byte) ([]byte, error) {
+func New(alg string, claims ClaimSet, key []byte) (*Token, error) {
+	//TODO: Validate Algorithm here, should be one of supported JWE/JWS algs
+	//if invalid alg, return nil, errors.New("a supported algorithm must be provided")
 	token := Token{
 		Header: Header{
-			Algorithm: alg,
-			Type: "JWT",
+			Properties: map[string]interface{}{
+				"alg": alg,
+				"typ": "JWT",
+			},
 		},
 		Payload: Payload{
 			ClaimSet: claims,
 		},
-		Signature: Signature{
-
-		},
+		Signature: Signature{},
 		key: key,
 	}
 
-	switch alg {
-	case "HS256":
-		return token.encodeHS256()
-	}
-
-	return nil, errors.New("a supported algorithm must be provided")
+	return &token, nil
 }
 
 func Parse(tokenString string) (*Token, error) {
 	token := Token{raw: []byte(tokenString)}
-	t, err := token.decodeHS256()
+
+	err := token.Decode()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return t, nil
+	return &token, nil
 }

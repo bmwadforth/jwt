@@ -1,24 +1,24 @@
 package jwt
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 )
 
-func (t *Token) decodeHS256() (*Token, error){
+func (t *Token) Decode()  error {
 	if t.raw == nil {
-		return t, errors.New("base64 encoded jwt must be supplied to be decoded")
+		return errors.New("raw token string must be provided to decode")
 	}
 
 	tokenComponents := strings.Split(string(t.raw), ".")
+	fmt.Println(tokenComponents)
 
-	headerJson, _ := base64.RawURLEncoding.DecodeString(tokenComponents[0])
-	payloadJson, _ := base64.RawURLEncoding.DecodeString(tokenComponents[1])
+	header, _ := t.Header.FromBase64([]byte(tokenComponents[0]))
+	t.Header = *header
 
-	_ = json.Unmarshal(headerJson, &t.Header)
-	_ = json.Unmarshal(payloadJson, &t.Payload.ClaimSet)
+	payload, _ := t.Payload.FromBase64([]byte(tokenComponents[1]))
+	t.Payload = *payload
 
-	return t, nil
+	return nil
 }

@@ -5,6 +5,10 @@ import (
 	"fmt"
 )
 
+func NewClaimSet() ClaimSet {
+	return ClaimSet{Claims: map[string]interface{}{}}
+}
+
 func (c *ClaimSet) Add(key string, value interface{}) error {
 	//Ensure value is of JSON grammar
 	_, found := c.Claims[key]; if found {
