@@ -42,12 +42,16 @@ func generateJwt(key []byte) (string, error) {
 }
 
 func validateToken(tokenString string, key []byte) (bool, error) {
-    _, err := Parse(tokenString)
+    token, err := Parse(tokenString)
 	if err != nil {
 		log.Fatal(err)
 	}
     
-    //TODO: token.Validate()
+    isValid, _ := token.Validate(key)
+    
+    if !isValid {
+        //Not Valid
+    }
     return true, nil
 }
 
