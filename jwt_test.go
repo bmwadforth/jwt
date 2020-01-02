@@ -22,7 +22,7 @@ func TestEncodeJWT(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	token, _ := New("HS256", claims, []byte("THIS_IS_A_KEY"))
+	token, _ := New(HS256, claims, []byte("THIS_IS_A_KEY"))
 
 	tokenBytes, err := token.Encode()
 	if err != nil {
