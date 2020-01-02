@@ -3,6 +3,7 @@ package jwt
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"testing"
 )
@@ -43,24 +44,24 @@ func TestCustomJWSSign(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	signer, err := NewSigner(token, func(b []byte, key []byte) ([]byte, error) {
-		buff := bytes.Buffer{}
-		buffer := bytes.NewBuffer(buff.Bytes())
-
-		buffer.Write(b)
-		buffer.Write(key)
-
-		return buffer.Bytes(), nil
+	signer, err := NewSigner(token, func(t *Token, signingInput []byte) ([]byte, error) {
+		return []byte("signed"), nil
 	})
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	signedBytes, _ := signer.Sign([]byte("BYTES"))
+	signedBytes, _ := signer.Sign()
 
-	if !bytes.Equal(signedBytes, []byte{66, 89, 84, 69, 83, 75, 69, 89}) {
-		t.Fatal("signer function returned invalid bytes")
+	headerB64, _ := token.Header.ToBase64()
+	payloadB64, _ := token.Payload.ToBase64()
+	signatureB64 := []byte(base64.RawURLEncoding.EncodeToString([]byte("signed")))
+
+	expectedBytes := fmt.Sprintf("%s.%s.%s", headerB64, payloadB64, signatureB64)
+
+	if !bytes.Equal(signedBytes, []byte(expectedBytes)) {
+		t.Fatal("bytes do not match")
 	}
 }
 

@@ -73,7 +73,7 @@ func getValidateFunc(a AlgorithmType) ValidateFunc {
 	case RS256:
 		return validateRSA256
 	case None:
-		return func(v *Validator) (bool, error) {
+		return func(_ *Token) (bool, error) {
 			return true, nil
 		}
 	}
@@ -81,20 +81,20 @@ func getValidateFunc(a AlgorithmType) ValidateFunc {
 	return nil
 }
 
-func validateHMAC256(v *Validator) (bool, error) {
-	encodedBytes, err := v.Encode()
+func validateHMAC256(t *Token) (bool, error) {
+	encodedBytes, err := t.Encode()
 	if err != nil {
 		return false, err
 	}
 
-	if !bytes.Equal(encodedBytes, v.raw) {
+	if !bytes.Equal(encodedBytes, t.raw) {
 		return false, errors.New("failed to validated token - bytes are not equal")
 	}
 
 	return true, nil
 }
 
-func validateRSA256(v *Validator) (bool, error) {
+func validateRSA256(t *Token) (bool, error) {
 	log.Fatal("rsa256 validation not implemented")
 
 	return true, nil
@@ -105,7 +105,7 @@ func (v *Validator) Validate() (bool, error) {
 		return false, errors.New("unable to verify data without a validating function defined")
 	}
 
-	valid, err := v.ValidateFunc(v)
+	valid, err := v.ValidateFunc(v.Token)
 	if err != nil {
 		return false, err
 	}

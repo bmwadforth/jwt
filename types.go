@@ -1,7 +1,7 @@
 package jwt
 
-type SignFunc func(bytes []byte, key []byte) ([]byte, error)
-type ValidateFunc func(v *Validator) (bool, error)
+type SignFunc func(s *Token, signingInput []byte) ([]byte, error)
+type ValidateFunc func(v *Token) (bool, error)
 
 type RegisteredClaim string
 
