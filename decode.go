@@ -8,7 +8,7 @@ import (
 
 func (t *Token) Decode()  (bool, error) {
 	if t.raw == nil || string(t.raw) == "" {
-		return false, errors.New("raw token string must be provided to decode")
+		return false, errors.New("Raw token string must be provided to decode")
 	}
 
 	tokenComponents := strings.Split(string(t.raw), ".")
@@ -18,6 +18,8 @@ func (t *Token) Decode()  (bool, error) {
 
 	payload, _ := t.Payload.FromBase64([]byte(tokenComponents[1]))
 	t.Payload = *payload
+
+	t.Signature.Raw = []byte(tokenComponents[2])
 
 	algorithm, ok := t.Header.Properties["alg"].(AlgorithmType); if !ok {
 		algorithmStr, ok := t.Header.Properties["alg"].(string); if ok {

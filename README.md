@@ -137,8 +137,63 @@ func main(){
 }
 ```
 
+### Custom Validation Method
+
+Just as you can create a custom signing method, you can also create a custom validation method.
+
+```go
+package main
+
+import (
+    "fmt"
+    . "github.com/bmwadforth/jwt"
+    "io/ioutil"
+    "log"
+    "crypto/x509"
+    "crypto/rand"
+    "crypto/rsa"
+    "crypto/sha256"
+    "crypto"
+    "encoding/pem"
+)
+
+func main(){
+    b, _ := ioutil.ReadFile("./rsa_privae.pem")
+    block, _ := pem.Decode(b)
+    key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+    
+    tokenString := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.e30.uZTBWMOdIYMlSxyJgGOgjPXwISnMDzLyiOE5k9GK2ruWc2IvWkOLtmZ9ECOwDqwLM93WH7CMIP7IEOMVZJzkHkFj16GgQnz-KSgY9MK8fBROij4R09XyXVRMvmBjVAyPxBS8dK9j-FuZIceu5TEN3-FmjcTq87OQfc3-mO6_3mruQfg59m9dSbcVL2SEQrRyrG-Jitkma7f_up8BSJHt0Q08ASVBivHjws2Z_QGYb3NkrI0oEcH_yoXlvJohsEQtNaycFLGNDtzujABHp9ZT5a2L-U8WCf8K9JwttGnuVTMhDviEjWC2M2weXAB8WimiwqQB2zER-4ILpbUhhL_MjA"
+    
+    token, err := Parse(tokenString, block.Bytes)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    validator, err := NewValidator(token, func(t *Token) (b bool, e error) {
+        tokenString, _ := token.Encode()
+        hashed := sha256.Sum256(tokenString)
+        err := rsa.VerifyPKCS1v15(&key.PublicKey, crypto.SHA256, hashed[:], t.Signature.Raw)
+        if err != nil {
+            return false, err
+        }   
+        return true, nil
+    })
+
+    if err != nil {
+        log.Fatal(err)
+    }
+   
+    _, err = validator.Validate()
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    //token is valid
+}
+```
+
 ### Supported Algorithms
-This library currently supports JWS only - implementing HS256 and insecure JWTs.
+This library currently supports JWS only.
 
 
 #### JWS

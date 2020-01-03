@@ -2,8 +2,14 @@ package jwt
 
 import (
 	"bytes"
+	"crypto"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
 	"errors"
-	"log"
+	"fmt"
 )
 
 
@@ -95,7 +101,23 @@ func validateHMAC256(t *Token) (bool, error) {
 }
 
 func validateRSA256(t *Token) (bool, error) {
-	log.Fatal("rsa256 validation not implemented")
+	block, _ := pem.Decode(t.key)
+	key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+
+	headerB64, _ := t.Header.ToBase64()
+	payloadB64, _ := t.Payload.ToBase64()
+
+	hashed := sha256.Sum256([]byte(fmt.Sprintf("%s.%s", headerB64, payloadB64)))
+
+	decodedSignature, err := base64.RawURLEncoding.DecodeString(string(t.Signature.Raw))
+	if err != nil {
+		return false, err
+	}
+
+	err = rsa.VerifyPKCS1v15(&key.PublicKey, crypto.SHA256, hashed[:], decodedSignature)
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }

@@ -73,6 +73,7 @@ func (s *Signer) Sign() ([]byte, error) {
 		return nil, err
 	}
 	signatureB64 := base64.RawURLEncoding.EncodeToString(signedBytes)
+	s.Signature.Raw = []byte(signatureB64)
 
 	return []byte(fmt.Sprintf("%s.%s.%s", s.Header.raw, s.Payload.raw, signatureB64)), nil
 }

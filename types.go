@@ -48,6 +48,7 @@ type Payload struct {
 }
 
 type Signature struct {
+	Raw []byte
 }
 
 type Token struct {
