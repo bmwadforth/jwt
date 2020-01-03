@@ -24,6 +24,8 @@ func (h *Header) ToBase64() ([]byte, error){
 
 	b64Bytes := base64.RawURLEncoding.EncodeToString(jsonBytes)
 
+	h.raw = []byte(b64Bytes)
+
 	return []byte(b64Bytes), nil
 }
 
