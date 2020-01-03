@@ -38,6 +38,20 @@ func TestDecodeJWT(t *testing.T) {
 	}
 }
 
+func TestValidateJWT(t *testing.T) {
+	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJldmVyeW9uZSJ9.NFs_ovvcxQG1PszLUNXmierwLVEK3-mHq5SGKr3DOXw"
+
+	token, err := Parse(tokenString, []byte("THIS_IS_A_KEY"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = Validate(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRSA256Sign(t *testing.T) {
 	b, _ := ioutil.ReadFile("./private.pem")
 

@@ -1,6 +1,9 @@
 package jwt
 
-import "errors"
+import (
+	"errors"
+	"log"
+)
 
 func New(alg AlgorithmType, claims ClaimSet, key []byte) (*Token, error) {
 	//TODO: Validate Algorithm here, should be one of supported JWE/JWS algs
@@ -25,20 +28,43 @@ func New(alg AlgorithmType, claims ClaimSet, key []byte) (*Token, error) {
 	return &token, nil
 }
 
-//Parsing is slightly different to creating tokens. Parsing will accept the token string and a key.
-//After parsing the token string and decoding it, it will validate the token using the key provided
 func Parse(tokenString string, key []byte) (*Token, error) {
 	token := Token{raw: []byte(tokenString)}
 	token.key = key
 
-	valid, err := token.Decode()
+	err := token.Decode()
 	if err != nil {
 		return nil, err
 	}
 
-	if !valid {
-		return nil, errors.New("token is invalid")
+	return &token, nil
+}
+
+func Validate(t *Token) (bool, error){
+	algorithm, ok := t.Header.Properties["alg"].(AlgorithmType); if !ok {
+		algorithmStr, ok := t.Header.Properties["alg"].(string); if ok {
+			algorithm = AlgorithmType(algorithmStr)
+		}
 	}
 
-	return &token, nil
+	tokenType, err := DetermineTokenType(algorithm)
+	if err != nil {
+		return false, err
+	}
+
+	switch tokenType {
+	case JWS:
+		validator, err := NewValidator(t, getValidateFunc(algorithm))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		return validator.Validate()
+	case JWE:
+		log.Fatal("JWE Not Implemented")
+	default:
+		//TODO: If you get here, CUSTOM has been chosen for the algorithm, which means the developer consuming this API will be implementing the SignFunc/EncryptFunc
+	}
+
+	return false, errors.New("unable to decode - please check algorithm")
 }

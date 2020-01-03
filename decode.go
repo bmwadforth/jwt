@@ -2,13 +2,12 @@ package jwt
 
 import (
 	"errors"
-	"log"
 	"strings"
 )
 
-func (t *Token) Decode()  (bool, error) {
+func (t *Token) Decode() error {
 	if t.raw == nil || string(t.raw) == "" {
-		return false, errors.New("Raw token string must be provided to decode")
+		return errors.New("raw token string must be provided to decode")
 	}
 
 	tokenComponents := strings.Split(string(t.raw), ".")
@@ -21,30 +20,5 @@ func (t *Token) Decode()  (bool, error) {
 
 	t.Signature.Raw = []byte(tokenComponents[2])
 
-	algorithm, ok := t.Header.Properties["alg"].(AlgorithmType); if !ok {
-		algorithmStr, ok := t.Header.Properties["alg"].(string); if ok {
-			algorithm = AlgorithmType(algorithmStr)
-		}
-	}
-
-	tokenType, err := DetermineTokenType(algorithm)
-	if err != nil {
-		return false, err
-	}
-
-	switch tokenType {
-	case JWS:
-		validator, err := NewValidator(t, getValidateFunc(algorithm))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		return validator.Validate()
-	case JWE:
-		log.Fatal("JWE Not Implemented")
-	default:
-		//TODO: If you get here, CUSTOM has been chosen for the algorithm, which means the developer consuming this API will be implementing the SignFunc/EncryptFunc
-	}
-
-	return false, errors.New("unable to decode - please check algorithm")
+	return nil
 }

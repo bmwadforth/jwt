@@ -60,9 +60,14 @@ func main(){
     if err != nil {
         log.Fatal(err)
     }
-
+    
+    //We can now validate the token structure
+    _, err = Validate(token)
+    if err != nil {
+        log.Fatal(err)
+    }   
+    
     //No errors, token is valid
-    fmt.Println(token.Claims)
 }
 ```
 
