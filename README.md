@@ -11,7 +11,7 @@ This library is extremely **new**. Integrate it with your applications at your o
 ### Quickstart
 If all you want to do is generate and validate a JWT, use these examples.
 
-#### Generating a JWT
+#### Generating a HS256 JWT
 ```go
 package main
 
@@ -24,24 +24,27 @@ import (
 
 func main(){
     key := []byte("Key")
+
     claims := NewClaimSet()
     claims.Add(string(Audience), "your_audience")
     claims.Add(string(Subject), "your_subject")
     claims.Add(string(IssuedAt), time.Now())
     claims.Add("my_claim", "some_value")
 
+    //Create new HS256 token, set claims and key
     token, err := New(HS256, claims, key)
     if err != nil {
         log.Fatal(err)
     }
 
+    //Encode token
     tokenBytes, err := token.Encode()
     fmt.Println(string(tokenBytes))
     //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ5b3VyX2F1ZGllbmNlIiwiaWF0IjoiMjAyMC0wMS0wMlQyMTo1NTo1OS40MzE1ODErMTE6MDAiLCJteV9jbGFpbSI6InNvbWVfdmFsdWUiLCJzdWIiOiJ5b3VyX3N1YmplY3QifQ.PAR_a60R6VZakCmBZg8aMgt3eXDi-CMC4P4p08yJy-I
 }
 ```
 
-#### Validating a JWT
+#### Validating a HS256 JWT
 ```go
 package main
 
@@ -52,22 +55,22 @@ import (
 )
 
 func main(){
-    tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ5b3VyX2F1ZGllbmNlIiwiaWF0IjoiMjAyMC0wMS0wMlQyMTo1NTo1OS40MzE1ODErMTE6MDAiLCJteV9jbGFpbSI6InNvbWVfdmFsdWUiLCJzdWIiOiJ5b3VyX3N1YmplY3QifQ.PAR_a60R6VZakCmBZg8aMgt3eXDi-CMC4P4p08yJy-I"
     key := []byte("Key")
-    //If the above key was used to generate our tokenString, 
-    //parse will deserialize our token string into a token structure
+    tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ5b3VyX2F1ZGllbmNlIiwiaWF0IjoiMjAyMC0wMS0wMlQyMTo1NTo1OS40MzE1ODErMTE6MDAiLCJteV9jbGFpbSI6InNvbWVfdmFsdWUiLCJzdWIiOiJ5b3VyX3N1YmplY3QifQ.PAR_a60R6VZakCmBZg8aMgt3eXDi-CMC4P4p08yJy-I"
+    
+    //Parse token string
     token, err := Parse(tokenString, key)
     if err != nil {
         log.Fatal(err)
     }
     
-    //We can now validate the token structure
+    //Validate token
     _, err = Validate(token)
     if err != nil {
         log.Fatal(err)
     }   
     
-    //No errors, token is valid
+    //Token is valid
 }
 ```
 
@@ -97,10 +100,9 @@ import (
 )
 
 func main(){
-    b, _ := ioutil.ReadFile("./rsa_privae.pem")
+    b, _ := ioutil.ReadFile("./rsa_private.pem")
 
     block, _ := pem.Decode(b)
-
     key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
 
     token, err := New(RS256, NewClaimSet(), block.Bytes)
@@ -108,7 +110,8 @@ func main(){
         log.Fatal(err)
     }
 
-    signer, err := NewSigner(token, func(t *Token, signingInput []byte) ([]byte, error) {
+    //Before calling validate, set SignFunc
+    token.SignFunc = func(t *Token, signingInput []byte) (bytes []byte, e error) {
         // crypto/rand.Reader is a good source of entropy for blinding the RSA
         // operation.
         rng := rand.Reader
@@ -126,13 +129,9 @@ func main(){
         }
 
         return signature, nil
-    })
-
-    if err != nil {
-        log.Fatal(err)
     }
 
-    signedBytes, err := signer.Sign()
+    signedBytes, err := token.Sign()
     if err != nil {
         log.Fatal(err)
     }
@@ -164,7 +163,7 @@ import (
 )
 
 func main(){
-    b, _ := ioutil.ReadFile("./private.pem")
+    b, _ := ioutil.ReadFile("./rsa_private.pem")
     block, _ := pem.Decode(b)
     key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
 
@@ -175,7 +174,8 @@ func main(){
         log.Fatal(err)
     }
 
-    validator, err := NewValidator(token, func(t *Token) (b bool, e error) {
+    //Before calling validate, set ValidateFunc
+    token.ValidateFunc = func(t *Token) (b bool, e error) {
         headerB64, _ := t.Header.ToBase64()
         payloadB64, _ := t.Payload.ToBase64()
         hashed := sha256.Sum256([]byte(fmt.Sprintf("%s.%s", headerB64, payloadB64)))
@@ -188,18 +188,14 @@ func main(){
             return false, err
         }
         return true, nil
-    })
+    }
 
+    _, err = token.Validate()
     if err != nil {
         log.Fatal(err)
     }
 
-    _, err = validator.Validate()
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    //token is valid
+    //Token is valid
 }
 ```
 
@@ -213,7 +209,7 @@ This library currently supports JWS only.
 | HS256        | HMAC using SHA-256            | Required           | ✅ |
    | HS384        | HMAC using SHA-384            | Optional           |❌ |
    | HS512        | HMAC using SHA-512            | Optional           |❌ |
-   | RS256        | RSASSA-PKCS1-v1_5 using SHA-256                | Recommended        | ❌|
+   | RS256        | RSASSA-PKCS1-v1_5 using SHA-256                | Recommended        | ✅|
    | RS384        | RSASSA-PKCS1-v1_5 using SHA-384        | Optional           | ❌|
    | RS512        | RSASSA-PKCS1-v1_5 using SHA-512        | Optional           | ❌|
    | ES256        | ECDSA using P-256 and SHA-256 | Recommended+       | ❌|

@@ -35,7 +35,6 @@ func TestDecodeHMAC(t *testing.T) {
 	if token.Claims[string(Audience)] != "developers" {
 		t.Fatal(errors.New("claims not decoded correctly"))
 	}
-
 }
 
 func TestValidateHMAC(t *testing.T){

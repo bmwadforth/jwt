@@ -36,7 +36,6 @@ func TestDecodeRSA256(t *testing.T) {
 	if token.Claims[string(Audience)] != "developers" {
 		t.Fatal(errors.New("claims not decoded correctly"))
 	}
-
 }
 
 func TestValidateRSA256(t *testing.T){
