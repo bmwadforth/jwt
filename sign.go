@@ -1,9 +1,14 @@
 package jwt
 
 import (
+	"crypto"
 	"crypto/hmac"
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
+	"encoding/pem"
 	"errors"
 	"fmt"
 )
@@ -32,8 +37,18 @@ func signHMAC256(t *Token, signingInput []byte) ([]byte, error) {
 }
 
 func signRSA256(t *Token, signingInput []byte) ([]byte, error) {
+	block, _ := pem.Decode(t.key)
+	key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
 
-	return nil, nil
+	rng := rand.Reader
+	hashed := sha256.Sum256(signingInput)
+
+	signature, err := rsa.SignPKCS1v15(rng, key, crypto.SHA256, hashed[:])
+	if err != nil {
+		return nil, err
+	}
+
+	return signature, nil
 }
 
 func (s *Signer) Sign() ([]byte, error) {

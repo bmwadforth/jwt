@@ -2,9 +2,9 @@ package jwt
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"testing"
 )
 
@@ -39,24 +39,19 @@ func TestDecodeJWT(t *testing.T) {
 }
 
 func TestRSA256Sign(t *testing.T) {
-	t.Skip()
-	key := make([]byte, 32)
-	_, _ = rand.Read(key)
+	b, _ := ioutil.ReadFile("./private.pem")
 
-	fmt.Println(key)
-
-	token, err := New(RS256, NewClaimSet(), key)
-
+	token, err := New(RS256, NewClaimSet(), b)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	tokenBytes, err := token.Encode()
+	signedBytes, err := token.Encode()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fmt.Println(string(tokenBytes))
+	fmt.Println(string(signedBytes))
 }
 
 func TestCustomJWSSign(t *testing.T) {
