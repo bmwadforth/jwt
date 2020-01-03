@@ -72,9 +72,8 @@ If you would prefer to define your own JWS signing method, you can define your o
 Notably, there are a few caveats
 * Do not call token.Encode() otherwise the signing function will be _overriden_ with the signing function defined by the library for the algorithm supplied
 * The signing function will **always** receive a base64 encoded header and payload as the bytes to sign, per the JWS specification
-* When you return your byte slice from the signing function, it is base64 encoded and placed as the signature of the JWS
-* After calling sign, your _signed bytes_ returned from Sign() will be a complete base64 encoded JWS in the following format - header.payload.signature
-* This functionality is provided to you by design, however modifying how the signature is generated will most likely deviate from the specification. The only reason you should ever override the signing function is if you want to implement the signing steps yourself 
+
+A good example of when you would want to implement your own signing function is when you want more control over how to sign your token. For example, RS256: 
 
 ```go
 package main
@@ -82,17 +81,57 @@ package main
 import (
     "fmt"
     . "github.com/bmwadforth/jwt"
+    "io/ioutil"
+    "log"
+    "crypto/x509"
+    "crypto/rand"
+    "crypto/rsa"
+    "crypto/sha256"
+    "crypto"
+    "encoding/pem"
 )
 
 func main(){
-    token, _ := New(HS256, NewClaimSet(), []byte("Key")) 
-    signer, _ := NewSigner(token, func(t *Token, bytesToSign []byte) ([]byte, error) {
-        //Implement custom HS256 signing logic here
-        return bytesToSign, nil
+    b, _ := ioutil.ReadFile("./rsa_privae.pem")
+
+    block, _ := pem.Decode(b)
+
+    key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+
+    token, err := New(RS256, NewClaimSet(), block.Bytes)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    signer, err := NewSigner(token, func(t *Token, signingInput []byte) ([]byte, error) {
+        // crypto/rand.Reader is a good source of entropy for blinding the RSA
+        // operation.
+        rng := rand.Reader
+
+        // Only small messages can be signed directly; thus the hash of a
+        // message, rather than the message itself, is signed. This requires
+        // that the hash function be collision resistant. SHA-256 is the
+        // least-strong hash function that should be used for this at the time
+        // of writing (2016).
+        hashed := sha256.Sum256(signingInput)
+
+        signature, err := rsa.SignPKCS1v15(rng, key, crypto.SHA256, hashed[:])
+        if err != nil {
+            return nil, err
+        }
+
+        return signature, nil
     })
-    
-    signedBytes, _ := signer.Sign()
-    
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    signedBytes, err := signer.Sign()
+    if err != nil {
+        log.Fatal(err)
+    }
+
     fmt.Println(string(signedBytes))
 }
 ```
