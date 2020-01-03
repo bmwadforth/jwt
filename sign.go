@@ -51,40 +51,29 @@ func signRSA256(t *Token, signingInput []byte) ([]byte, error) {
 	return signature, nil
 }
 
-func (s *Signer) Sign() ([]byte, error) {
-	if s.SignFunc == nil {
+func (t *Token) Sign() ([]byte, error) {
+	if t.SignFunc == nil {
 		return nil, errors.New("unable to sign data without a signing function defined")
 	}
 
 	//Header and payload haven't been base64 encoded, so let's do it
-	if len(s.Header.raw) == 0 && len(s.Payload.raw) == 0 {
-		_, err := s.Header.ToBase64()
+	if len(t.Header.raw) == 0 && len(t.Payload.raw) == 0 {
+		_, err := t.Header.ToBase64()
 		if err != nil {
 			return nil, err
 		}
-		_, err = s.Payload.ToBase64()
+		_, err = t.Payload.ToBase64()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	signedBytes, err := s.SignFunc(s.Token, []byte(fmt.Sprintf("%s.%s", s.Header.raw, s.Payload.raw)))
+	signedBytes, err := t.SignFunc(t, []byte(fmt.Sprintf("%s.%s", t.Header.raw, t.Payload.raw)))
 	if err != nil {
 		return nil, err
 	}
 	signatureB64 := base64.RawURLEncoding.EncodeToString(signedBytes)
-	s.Signature.Raw = []byte(signatureB64)
+	t.Signature.Raw = []byte(signatureB64)
 
-	return []byte(fmt.Sprintf("%s.%s.%s", s.Header.raw, s.Payload.raw, signatureB64)), nil
-}
-
-func NewSigner(t *Token, signFunc SignFunc) (*Signer, error){
-	if t == nil {
-		return nil, errors.New("token structure must be supplied")
-	}
-
-	return &Signer{
-		Token:    t,
-		SignFunc: signFunc,
-	}, nil
+	return []byte(fmt.Sprintf("%s.%s.%s", t.Header.raw, t.Payload.raw, signatureB64)), nil
 }

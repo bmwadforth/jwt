@@ -8,6 +8,7 @@ import (
 func New(alg AlgorithmType, claims ClaimSet, key []byte) (*Token, error) {
 	//TODO: Validate Algorithm here, should be one of supported JWE/JWS algs
 	//if invalid alg, return nil, errors.New("a supported algorithm must be provided")
+
 	token := Token{
 		Header: Header{
 			Properties: map[string]interface{}{
@@ -21,6 +22,8 @@ func New(alg AlgorithmType, claims ClaimSet, key []byte) (*Token, error) {
 			raw: []byte{},
 		},
 		Signature: Signature{},
+		SignFunc: getSignFunc(alg),
+		ValidateFunc: getValidateFunc(alg),
 		key: key,
 		raw: []byte{},
 	}
@@ -30,9 +33,18 @@ func New(alg AlgorithmType, claims ClaimSet, key []byte) (*Token, error) {
 
 func Parse(tokenString string, key []byte) (*Token, error) {
 	token := Token{raw: []byte(tokenString)}
-	token.key = key
 
 	err := token.Decode()
+	algorithm, ok := token.Header.Properties["alg"].(AlgorithmType); if !ok {
+		algorithmStr, ok := token.Header.Properties["alg"].(string); if ok {
+			algorithm = AlgorithmType(algorithmStr)
+		}
+	}
+
+	token.SignFunc = getSignFunc(algorithm)
+	token.ValidateFunc = getValidateFunc(algorithm)
+	token.key = key
+
 	if err != nil {
 		return nil, err
 	}
@@ -54,12 +66,7 @@ func Validate(t *Token) (bool, error){
 
 	switch tokenType {
 	case JWS:
-		validator, err := NewValidator(t, getValidateFunc(algorithm))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		return validator.Validate()
+		return t.Validate()
 	case JWE:
 		log.Fatal("JWE Not Implemented")
 	default:

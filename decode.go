@@ -12,11 +12,15 @@ func (t *Token) Decode() error {
 
 	tokenComponents := strings.Split(string(t.raw), ".")
 
-	header, _ := t.Header.FromBase64([]byte(tokenComponents[0]))
-	t.Header = *header
+	_, err := t.Header.FromBase64([]byte(tokenComponents[0]))
+	if err != nil {
+		return err
+	}
 
-	payload, _ := t.Payload.FromBase64([]byte(tokenComponents[1]))
-	t.Payload = *payload
+	_, err = t.Payload.FromBase64([]byte(tokenComponents[1]))
+	if err != nil {
+		return err
+	}
 
 	t.Signature.Raw = []byte(tokenComponents[2])
 

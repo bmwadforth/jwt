@@ -122,26 +122,15 @@ func validateRSA256(t *Token) (bool, error) {
 	return true, nil
 }
 
-func (v *Validator) Validate() (bool, error) {
-	if v.ValidateFunc == nil {
+func (t *Token) Validate() (bool, error) {
+	if t.ValidateFunc == nil {
 		return false, errors.New("unable to verify data without a validating function defined")
 	}
 
-	valid, err := v.ValidateFunc(v.Token)
+	valid, err := t.ValidateFunc(t)
 	if err != nil {
 		return false, err
 	}
 
 	return valid, nil
-}
-
-func NewValidator(t *Token, validatorFunc ValidateFunc) (*Validator, error){
-	if t == nil {
-		return nil, errors.New("token structure must be supplied")
-	}
-
-	return &Validator{
-		Token:    t,
-		ValidateFunc: validatorFunc,
-	}, nil
 }

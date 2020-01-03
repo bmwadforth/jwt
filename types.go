@@ -55,6 +55,8 @@ type Token struct {
 	Header
 	Payload
 	Signature
+	SignFunc
+	ValidateFunc
 	key []byte
 	raw []byte
 }

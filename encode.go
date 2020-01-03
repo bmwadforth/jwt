@@ -68,12 +68,7 @@ func (t *Token) Encode() ([]byte, error){
 
 	switch tokenType {
 	case JWS:
-		signer, err := NewSigner(t, getSignFunc(algorithm))
-		if err != nil {
-			return nil, err
-		}
-
-		return signer.Sign()
+		return t.Sign()
 	case JWE:
 		log.Fatal("JWE Not Implemented")
 	default:
