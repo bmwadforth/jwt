@@ -115,12 +115,6 @@ func main(){
         // crypto/rand.Reader is a good source of entropy for blinding the RSA
         // operation.
         rng := rand.Reader
-
-        // Only small messages can be signed directly; thus the hash of a
-        // message, rather than the message itself, is signed. This requires
-        // that the hash function be collision resistant. SHA-256 is the
-        // least-strong hash function that should be used for this at the time
-        // of writing (2016).
         hashed := sha256.Sum256(signingInput)
 
         signature, err := rsa.SignPKCS1v15(rng, key, crypto.SHA256, hashed[:])
