@@ -1,9 +1,7 @@
 package jwt
 
 import (
-	"encoding/base64"
 	"errors"
-	"fmt"
 	"log"
 )
 
@@ -47,16 +45,16 @@ import (
 */
 
 func (t *Token) Encode() ([]byte, error){
-	headerB64, err := t.Header.ToBase64()
-	if err != nil {
-		return nil, err
-	}
-	payloadB64, err := t.Payload.ToBase64()
+	_, err := t.Header.ToBase64()
 	if err != nil {
 		return nil, err
 	}
 
-	headerPayloadCompact := fmt.Sprintf("%s.%s", headerB64, payloadB64)
+	_, err = t.Payload.ToBase64()
+	if err != nil {
+		return nil, err
+	}
+
 	algorithm, ok := t.Header.Properties["alg"].(AlgorithmType); if !ok {
 		algorithmStr, ok := t.Header.Properties["alg"].(string); if ok {
 			algorithm = AlgorithmType(algorithmStr)
@@ -70,19 +68,7 @@ func (t *Token) Encode() ([]byte, error){
 
 	switch tokenType {
 	case JWS:
-		signer := Signer{
-			Token:    t,
-			SignFunc: getSignFunc(algorithm),
-		}
-
-		signedBytes, err := signer.Sign([]byte(headerPayloadCompact))
-		if err != nil {
-			return nil, err
-		}
-
-		signatureB64 := base64.RawURLEncoding.EncodeToString(signedBytes)
-
-		return []byte(fmt.Sprintf("%s.%s.%s", headerB64, payloadB64, signatureB64)), nil
+		return t.Sign()
 	case JWE:
 		log.Fatal("JWE Not Implemented")
 	default:

@@ -1,6 +1,7 @@
 package jwt
 
-type SignFunc func(bytes []byte, key []byte) ([]byte, error)
+type SignFunc func(t *Token, signingInput []byte) ([]byte, error)
+type ValidateFunc func(t *Token) (bool, error)
 
 type RegisteredClaim string
 
@@ -25,6 +26,8 @@ type AlgorithmType string
 
 const (
 	HS256 AlgorithmType = "HS256"
+
+	RS256 AlgorithmType = "RS256"
 	None  AlgorithmType = "none"
 
 	//TODO: JWE
@@ -32,6 +35,7 @@ const (
 
 type Header struct {
 	Properties map[string]interface{}
+	raw []byte
 }
 
 type ClaimSet struct {
@@ -40,15 +44,19 @@ type ClaimSet struct {
 
 type Payload struct {
 	ClaimSet
+	raw []byte
 }
 
 type Signature struct {
+	Raw []byte
 }
 
 type Token struct {
 	Header
 	Payload
 	Signature
+	SignFunc
+	ValidateFunc
 	key []byte
 	raw []byte
 }
@@ -58,3 +66,7 @@ type Signer struct {
 	SignFunc
 }
 
+type Validator struct {
+	*Token
+	ValidateFunc
+}
