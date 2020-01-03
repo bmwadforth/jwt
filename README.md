@@ -155,34 +155,40 @@ import (
     "crypto/sha256"
     "crypto"
     "encoding/pem"
+    "encoding/base64"
 )
 
 func main(){
-    b, _ := ioutil.ReadFile("./rsa_privae.pem")
+    b, _ := ioutil.ReadFile("./private.pem")
     block, _ := pem.Decode(b)
     key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
-    
+
     tokenString := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.e30.uZTBWMOdIYMlSxyJgGOgjPXwISnMDzLyiOE5k9GK2ruWc2IvWkOLtmZ9ECOwDqwLM93WH7CMIP7IEOMVZJzkHkFj16GgQnz-KSgY9MK8fBROij4R09XyXVRMvmBjVAyPxBS8dK9j-FuZIceu5TEN3-FmjcTq87OQfc3-mO6_3mruQfg59m9dSbcVL2SEQrRyrG-Jitkma7f_up8BSJHt0Q08ASVBivHjws2Z_QGYb3NkrI0oEcH_yoXlvJohsEQtNaycFLGNDtzujABHp9ZT5a2L-U8WCf8K9JwttGnuVTMhDviEjWC2M2weXAB8WimiwqQB2zER-4ILpbUhhL_MjA"
-    
-    token, err := Parse(tokenString, block.Bytes)
+
+    token, err := Parse(tokenString, b)
     if err != nil {
         log.Fatal(err)
     }
 
     validator, err := NewValidator(token, func(t *Token) (b bool, e error) {
-        tokenString, _ := token.Encode()
-        hashed := sha256.Sum256(tokenString)
-        err := rsa.VerifyPKCS1v15(&key.PublicKey, crypto.SHA256, hashed[:], t.Signature.Raw)
+        headerB64, _ := t.Header.ToBase64()
+        payloadB64, _ := t.Payload.ToBase64()
+        hashed := sha256.Sum256([]byte(fmt.Sprintf("%s.%s", headerB64, payloadB64)))
+        decodedSignature, err := base64.RawURLEncoding.DecodeString(string(t.Signature.Raw))
         if err != nil {
             return false, err
-        }   
+        }
+        err = rsa.VerifyPKCS1v15(&key.PublicKey, crypto.SHA256, hashed[:], decodedSignature)
+        if err != nil {
+            return false, err
+        }
         return true, nil
     })
 
     if err != nil {
         log.Fatal(err)
     }
-   
+
     _, err = validator.Validate()
     if err != nil {
         log.Fatal(err)
