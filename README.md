@@ -133,6 +133,7 @@ func main(){
     }
 
     fmt.Println(string(signedBytes))
+    //eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.e30.uZTBWMOdIYMlSxyJgGOgjPXwISnMDzLyiOE5k9GK2ruWc2IvWkOLtmZ9ECOwDqwLM93WH7CMIP7IEOMVZJzkHkFj16GgQnz-KSgY9MK8fBROij4R09XyXVRMvmBjVAyPxBS8dK9j-FuZIceu5TEN3-FmjcTq87OQfc3-mO6_3mruQfg59m9dSbcVL2SEQrRyrG-Jitkma7f_up8BSJHt0Q08ASVBivHjws2Z_QGYb3NkrI0oEcH_yoXlvJohsEQtNaycFLGNDtzujABHp9ZT5a2L-U8WCf8K9JwttGnuVTMhDviEjWC2M2weXAB8WimiwqQB2zER-4ILpbUhhL_MjA
 }
 ```
 
