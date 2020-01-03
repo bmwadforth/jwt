@@ -110,7 +110,7 @@ func main(){
         log.Fatal(err)
     }
 
-    //Before calling validate, set SignFunc
+    //Before calling sign, set SignFunc
     token.SignFunc = func(t *Token, signingInput []byte) (bytes []byte, e error) {
         // crypto/rand.Reader is a good source of entropy for blinding the RSA
         // operation.
