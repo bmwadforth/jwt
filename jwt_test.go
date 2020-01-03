@@ -8,6 +8,37 @@ import (
 	"testing"
 )
 
+func TestCustomJWSSign(t *testing.T) {
+	token, err := New(HS256, NewClaimSet(), []byte("KEY"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	signer, err := NewSigner(token, func(t *Token, signingInput []byte) ([]byte, error) {
+		//Signing Input is b64header.b64payload
+		return []byte("signed"), nil
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	signedBytes, err := signer.Sign()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	headerB64, _ := token.Header.ToBase64()
+	payloadB64, _ := token.Payload.ToBase64()
+	signatureB64 := []byte(base64.RawURLEncoding.EncodeToString([]byte("signed")))
+
+	expectedBytes := fmt.Sprintf("%s.%s.%s", headerB64, payloadB64, signatureB64)
+
+	if !bytes.Equal(signedBytes, []byte(expectedBytes)) {
+		t.Fatal("bytes do not match")
+	}
+}
+
 func TestEncodeJWT(t *testing.T) {
 	claims := NewClaimSet()
 	err := claims.Add(string(Audience), "everyone")
@@ -35,33 +66,6 @@ func TestDecodeJWT(t *testing.T) {
 
 	if token.Claims["aud"] != "everyone" {
 		t.Fatal("unable to decode jwt string correctly")
-	}
-}
-
-func TestCustomJWSSign(t *testing.T) {
-	token, err := New(HS256, NewClaimSet(), []byte("KEY"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	signer, err := NewSigner(token, func(t *Token, signingInput []byte) ([]byte, error) {
-		return []byte("signed"), nil
-	})
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	signedBytes, _ := signer.Sign()
-
-	headerB64, _ := token.Header.ToBase64()
-	payloadB64, _ := token.Payload.ToBase64()
-	signatureB64 := []byte(base64.RawURLEncoding.EncodeToString([]byte("signed")))
-
-	expectedBytes := fmt.Sprintf("%s.%s.%s", headerB64, payloadB64, signatureB64)
-
-	if !bytes.Equal(signedBytes, []byte(expectedBytes)) {
-		t.Fatal("bytes do not match")
 	}
 }
 

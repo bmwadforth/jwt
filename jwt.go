@@ -11,12 +11,15 @@ func New(alg AlgorithmType, claims ClaimSet, key []byte) (*Token, error) {
 				"alg": alg,
 				"typ": "JWT",
 			},
+			raw: []byte{},
 		},
 		Payload: Payload{
 			ClaimSet: claims,
+			raw: []byte{},
 		},
 		Signature: Signature{},
 		key: key,
+		raw: []byte{},
 	}
 
 	return &token, nil

@@ -35,6 +35,7 @@ const (
 
 type Header struct {
 	Properties map[string]interface{}
+	raw []byte
 }
 
 type ClaimSet struct {
@@ -43,6 +44,7 @@ type ClaimSet struct {
 
 type Payload struct {
 	ClaimSet
+	raw []byte
 }
 
 type Signature struct {

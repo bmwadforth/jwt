@@ -45,6 +45,16 @@ import (
 */
 
 func (t *Token) Encode() ([]byte, error){
+	_, err := t.Header.ToBase64()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = t.Payload.ToBase64()
+	if err != nil {
+		return nil, err
+	}
+
 	algorithm, ok := t.Header.Properties["alg"].(AlgorithmType); if !ok {
 		algorithmStr, ok := t.Header.Properties["alg"].(string); if ok {
 			algorithm = AlgorithmType(algorithmStr)

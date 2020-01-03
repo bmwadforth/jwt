@@ -41,25 +41,25 @@ func (s *Signer) Sign() ([]byte, error) {
 		return nil, errors.New("unable to sign data without a signing function defined")
 	}
 
-	headerB64, err := s.Header.ToBase64()
-	if err != nil {
-		return nil, err
+	//Header and payload haven't been base64 encoded, so let's do it
+	if len(s.Header.raw) == 0 && len(s.Payload.raw) == 0 {
+		_, err := s.Header.ToBase64()
+		if err != nil {
+			return nil, err
+		}
+		_, err = s.Payload.ToBase64()
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	payloadB64, err := s.Payload.ToBase64()
-	if err != nil {
-		return nil, err
-	}
-
-	signingInput := fmt.Sprintf("%s.%s", headerB64, payloadB64)
-
-	signedBytes, err := s.SignFunc(s.Token, []byte(signingInput))
+	signedBytes, err := s.SignFunc(s.Token, []byte(fmt.Sprintf("%s.%s", s.Header.raw, s.Payload.raw)))
 	if err != nil {
 		return nil, err
 	}
 	signatureB64 := base64.RawURLEncoding.EncodeToString(signedBytes)
 
-	return []byte(fmt.Sprintf("%s.%s.%s", headerB64, payloadB64, signatureB64)), nil
+	return []byte(fmt.Sprintf("%s.%s.%s", s.Header.raw, s.Payload.raw, signatureB64)), nil
 }
 
 func NewSigner(t *Token, signFunc SignFunc) (*Signer, error){
