@@ -77,9 +77,9 @@ func main(){
 ### Custom Signing Method
 
 If you would prefer to define your own JWS signing method, you can define your own signing function.
-Notably, there are a few caveats
-* Do not call token.Encode() otherwise the signing function will be _overriden_ with the signing function defined by the library for the algorithm supplied
+Notably:
 * The signing function will **always** receive a base64 encoded header and payload as the bytes to sign, per the JWS specification
+* What you return from the signing function is base 64 encoded and attached to the _signature_ component of the JWS
 
 A good example of when you would want to implement your own signing function is when you want more control over how to sign your token. For example, RS256: 
 
