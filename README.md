@@ -73,6 +73,7 @@ Notably, there are a few caveats
 * Do not call token.Encode() otherwise the signing function will be _overriden_ with the signing function defined by the library for the algorithm supplied
 * The signing function will **always** receive a base64 encoded header and payload as the bytes to sign, per the JWS specification
 * When you return your byte slice from the signing function, it is base64 encoded and placed as the signature of the JWS
+* After calling sign, your _signed bytes_ returned from Sign() will be a complete base64 encoded JWS in the following format - header.payload.signature 
 
 ```go
 package main
