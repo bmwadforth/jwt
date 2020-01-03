@@ -68,7 +68,11 @@ func main(){
 
 ### Custom Signing Method
 
-If you would prefer to define your own JWS signing method, you can define your own SignFunc
+If you would prefer to define your own JWS signing method, you can define your own signing function.
+Notably, there are a few caveats
+* Do not call token.Encode() otherwise the signing function will be _overriden_ with the signing function defined by the library for the algorithm supplied
+* The signing function will **always** receive a base64 encoded header and payload as the bytes to sign, per the JWS specification
+* When you return your byte slice from the signing function, it is base64 encoded and placed as the signature of the JWS
 
 ```go
 package main
@@ -78,25 +82,14 @@ import (
     . "github.com/bmwadforth/jwt"
 )
 
-//DO NOT call token.Encode() otherwise SignFunc will be 'looked up' based on the algorithm you passed in
-//If you are overriding the signing function, you must manually generate the base64 of the 
-//header and payload, and then sign it using your custom sign function 
 func main(){
     token, _ := New(HS256, NewClaimSet(), []byte("Key")) 
-    signer, _ := NewSigner(token, func(b []byte, key []byte) ([]byte, error) {
-        //key is automatically populated with the key argument when creating the token
-        //b is the bytes to sign
-        //Implement your own HS256 signing logic here
-        return b, nil
+    signer, _ := NewSigner(token, func(t *Token, bytesToSign []byte) ([]byte, error) {
+        //Implement custom HS256 signing logic here
+        return bytesToSign, nil
     })
     
-    headerB64, _ := token.Header.ToBase64()
-    payloadB64, _ := token.Payload.ToBase64()
-    
-    bytesToSign := fmt.Sprintf("%s.%s", headerB64, payloadB64)
-    
-    //Custom SignFunc defined above will now be called
-    signedBytes, _ := signer.Sign([]byte(bytesToSign))
+    signedBytes, _ := signer.Sign()
     
     fmt.Println(string(signedBytes))
 }
