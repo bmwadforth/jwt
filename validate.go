@@ -103,7 +103,9 @@ func validateHMAC256(t *Token) (bool, error) {
 
 func validateRSA256(t *Token) (bool, error) {
 	block, _ := pem.Decode(t.key)
-	key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+	key, err := x509.ParsePKCS1PrivateKey(block.Bytes); if err != nil {
+		return false, err
+	}
 
 	headerB64, _ := t.Header.ToBase64()
 	payloadB64, _ := t.Payload.ToBase64()
