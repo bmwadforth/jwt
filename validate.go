@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"time"
 )
 
 
@@ -130,6 +131,18 @@ func (t *Token) Validate() (bool, error) {
 	valid, err := t.ValidateFunc(t)
 	if err != nil {
 		return false, err
+	}
+
+	//TODO: Validate more claims
+	exp, ok := t.Claims[string(ExpirationTime)]; if ok {
+		claim := exp.(string)
+		expiration, err  := time.Parse(time.RFC3339, claim); if err != nil {
+			return false, err
+		}
+
+		if expiration.Before(time.Now()) {
+			return false, errors.New("token has expired")
+		}
 	}
 
 	return valid, nil
