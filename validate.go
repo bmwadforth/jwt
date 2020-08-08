@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"time"
 )
 
 
@@ -102,7 +103,9 @@ func validateHMAC256(t *Token) (bool, error) {
 
 func validateRSA256(t *Token) (bool, error) {
 	block, _ := pem.Decode(t.key)
-	key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+	key, err := x509.ParsePKCS1PrivateKey(block.Bytes); if err != nil {
+		return false, err
+	}
 
 	headerB64, _ := t.Header.ToBase64()
 	payloadB64, _ := t.Payload.ToBase64()
@@ -130,6 +133,18 @@ func (t *Token) Validate() (bool, error) {
 	valid, err := t.ValidateFunc(t)
 	if err != nil {
 		return false, err
+	}
+
+	//TODO: Validate more claims
+	exp, ok := t.Claims[string(ExpirationTime)]; if ok {
+		claim := exp.(string)
+		expiration, err  := time.Parse(time.RFC3339, claim); if err != nil {
+			return false, err
+		}
+
+		if expiration.Before(time.Now()) {
+			return false, errors.New("token has expired")
+		}
 	}
 
 	return valid, nil

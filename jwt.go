@@ -69,8 +69,6 @@ func Validate(t *Token) (bool, error){
 		return t.Validate()
 	case JWE:
 		log.Fatal("JWE Not Implemented")
-	default:
-		//TODO: If you get here, CUSTOM has been chosen for the algorithm, which means the developer consuming this API will be implementing the SignFunc/EncryptFunc
 	}
 
 	return false, errors.New("unable to decode - please check algorithm")
